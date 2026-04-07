@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Zen Glide — calm cursor control game | Relaxing Pixel Dodger</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background: #0a0c12;
+      font-family: 'Courier New', 'Fira Code', 'VT323', monospace;
+      color: #c0ffb0;
+      line-height: 1.45;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* retro branding */
+    .brand {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .brand h1 {
+      font-size: 3.2rem;
+      letter-spacing: 4px;
+      text-shadow: 0 0 8px #2aff6e;
+      background: linear-gradient(135deg, #b0ffb0, #5eff8a);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .badge {
+      display: flex;
+      justify-content: center;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+
+    .badge span {
+      background: #1e2a1a;
+      padding: 0.3rem 1rem;
+      border-radius: 40px;
+      border-left: 3px solid #7aff87;
+    }
+
+    .control-note {
+      background: #11180e;
+      display: inline-block;
+      padding: 0.4rem 1.2rem;
+      border-radius: 60px;
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      border: 1px dashed #6eff7a;
+    }
+
+    /* main game card */
+    .game-panel {
+      background: #030604c9;
+      backdrop-filter: blur(2px);
+      border-radius: 2rem;
+      padding: 1.5rem;
+      border: 1px solid #2b6e2f;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.6);
+      margin-bottom: 2rem;
+    }
+
+    .canvas-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    canvas {
+      background: #010300;
+      border-radius: 28px;
+      box-shadow: 0 0 0 3px #2a6b2e, 0 8px 20px black;
+      width: 100%;
+      height: auto;
+      cursor: crosshair;
+      display: block;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      background: #0e1a0b80;
+      padding: 0.8rem 1.5rem;
+      border-radius: 40px;
+    }
+
+    .score-box {
+      background: #030e02;
+      padding: 0.3rem 1rem;
+      border-radius: 32px;
+      font-weight: bold;
+      font-size: 1.6rem;
+      font-family: monospace;
+      letter-spacing: 2px;
+    }
+
+    .highscore {
+      background: #1f2a1c;
+      padding: 0.3rem 1rem;
+      border-radius: 32px;
+      font-size: 1.2rem;
+    }
+
+    .flow-meter {
+      flex: 1;
+      min-width: 140px;
+      background: #162012;
+      border-radius: 40px;
+      height: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .flow-fill {
+      width: 0%;
+      height: 100%;
+      background: #b3ffa7;
+      transition: width 0.05s linear;
+      box-shadow: 0 0 4px #b1ffa0;
+    }
+
+    .restart-btn {
+      background: #2d4228;
+      border: none;
+      font-family: inherit;
+      font-weight: bold;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      color: #dcffd0;
+      cursor: pointer;
+      transition: 0.1s linear;
+      font-size: 1rem;
+    }
+
+    .restart-btn:hover {
+      background: #4a7042;
+      transform: scale(0.96);
+    }
+
+    /* game card grid (other calm games) */
+    .games-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+
+    .game-card {
+      background: #0c130a;
+      border-radius: 2rem;
+      padding: 1rem 1.3rem;
+      width: 210px;
+      border: 1px solid #2d5a2a;
+      transition: all 0.1s;
+    }
+
+    .game-card h3 {
+      font-size: 1.4rem;
+      border-left: 4px solid #6eff7a;
+      padding-left: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .game-card p {
+      font-size: 0.75rem;
+      color: #b0e0a0;
+    }
+
+    .tips-section, .faq-section, .blog-section {
+      background: #07100560;
+      border-radius: 2rem;
+      padding: 1.5rem;
+      margin: 1.8rem 0;
+      border: 1px solid #2a5527;
+    }
+
+    .tips-section h2, .faq-section h2, .blog-section h2 {
+      margin-bottom: 1rem;
+      font-size: 1.7rem;
+      letter-spacing: 1px;
+    }
+
+    .tips-list {
+      list-style: none;
+    }
+
+    .tips-list li {
+      margin: 0.8rem 0;
+      padding-left: 1.2rem;
+      border-left: 2px solid #81ff7a;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.7rem;
+      color: #5e8060;
+      border-top: 1px dashed #2d5a2a;
+      padding-top: 1.5rem;
+    }
+
+    a {
+      color: #aaffaa;
+      text-decoration: none;
+    }
+
+    button.share-btn {
+      background: #1a2e16;
+      border: 1px solid #6eff7a;
+      border-radius: 30px;
+      padding: 0.2rem 0.8rem;
+      font-family: monospace;
+      font-weight: bold;
+      color: #cbffb5;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="brand">
+    <h1>⚡ ZEN GLIDE ⚡</h1>
+    <div class="badge">
+      <span>🎮 Mouse / Touch control</span>
+      <span>🌀 No microphone needed</span>
+      <span>🧘 Pure calm reflex</span>
+    </div>
+    <div class="control-note">
+      🖱️ Move cursor VERTICALLY on canvas → drift the glowing orb. Dodge dark crystals!
+    </div>
+  </div>
+
+  <div class="game-panel">
+    <div class="canvas-container">
+      <canvas id="gameCanvas" width="800" height="400" style="width:100%; height:auto; max-width:800px; aspect-ratio:800/400"></canvas>
+    </div>
+    <div class="stats-row">
+      <div class="score-box">🌀 SCORE: <span id="scoreValue">0</span></div>
+      <div class="highscore">🏆 BEST: <span id="highScoreValue">0</span></div>
+      <div class="flow-meter">
+        <div class="flow-fill" id="flowFill"></div>
+      </div>
+      <button class="restart-btn" id="restartButton">✨ RESTART</button>
+      <button class="share-btn" id="shareScoreBtn">📤 SHARE SCORE</button>
+    </div>
+    <div style="text-align: center; margin-top: 0.6rem; font-size: 0.7rem;">
+      💡 glide smoothly → cursor Y = orb position • avoid dark crystals • each gap = +1
+    </div>
+  </div>
+
+  <!-- other calm game cards (same style but not functional, just showcase) -->
+  <div class="games-grid">
+    <div class="game-card">
+      <h3>🎵 Pitch Drift</h3>
+      <p>Control pixel glider with whistle pitch? (not voice version) — just visual harmony. coming soon</p>
+    </div>
+    <div class="game-card">
+      <h3>🥁 Stone Tap</h3>
+      <p>Rhythm clicker. Tap to the silent beat. Relaxing minimalism</p>
+    </div>
+    <div class="game-card">
+      <h3>📢 Zen Scream</h3>
+      <p>No screaming — just silent breath counter. Meditative mode</p>
+    </div>
+    <div class="game-card">
+      <h3>🧘 Still Pond</h3>
+      <p>Mouse hover meditation. Keep the ripple centered</p>
+    </div>
+  </div>
+
+  <!-- how to play section adapted for cursor game -->
+  <div class="tips-section">
+    <h2>🧘 HOW TO PLAY · CALM CURSOR DODGER</h2>
+    <ul class="tips-list">
+      <li>✨ <strong>Move your mouse / finger</strong> vertically on the game canvas. The glowing orb follows your cursor Y position.</li>
+      <li>🌀 <strong>Dodge dark crystals</strong> — they scroll from right to left. Each crystal has a random gap. Fly through the gap to survive.</li>
+      <li>📈 <strong>Score increases</strong> each time you pass a crystal set. Speed rises with your distance — from 3 → 8 pixels/frame.</li>
+      <li>💀 <strong>Game over</strong> if you touch any crystal or hit top/bottom edge. Click RESTART or tap canvas to begin a new run.</li>
+      <li>🎯 The <strong>Flow Meter</strong> shows your relative vertical position (0% = top, 100% = bottom). Smooth drifting = high control.</li>
+    </ul>
+  </div>
+
+  <!-- stress relief & technique -->
+  <div class="tips-section">
+    <h2>🌀 STRESS RELIEF — WHY CURSOR GLIDING?</h2>
+    <p>Zen Glide replaces voice chaos with micro-adjustments of the hand. It triggers flow state: you focus on the gap, breathing steadies, and your fine motor skills sharpen. Unlike click-heavy games, smooth vertical tracking lowers cortisol — perfect for work breaks. The retro pixel art reduces cognitive load, and endless progression gives gentle dopamine without anxiety. It’s the ultimate relaxing game for mouse/touch users.</p>
+  </div>
+
+  <div class="faq-section">
+    <h2>❓ FREQUENT QUESTIONS</h2>
+    <p><strong>Do I need a microphone?</strong> No! This version uses mouse / touch only. No mic permission, no audio.</p>
+    <p><strong>Works on mobile?</strong> Yes — just drag your finger vertically on the canvas. Fully touch-optimized.</p>
+    <p><strong>How is score calculated?</strong> Every time you safely pass a dark crystal gap, +1 point. High score saved locally.</p>
+    <p><strong>Why does speed increase?</strong> To keep the challenge alive. From 50pts onward crystals get faster — but your focus deepens.</p>
+    <p><strong>Can I share my score?</strong> Click the share button — copies your current distance (score) to clipboard.</p>
+  </div>
+
+  <div class="blog-section">
+    <h2>📖 RELAXING SCIENCE · CURSOR GAMES & ATTENTION</h2>
+    <p>Recent studies show that predictable movement games reduce mental fatigue. Zen Glide uses smooth pursuit tracking — your eyes follow the gap while your hand adjusts vertical position. This dual coordination occupies the default mode network, letting anxious thoughts fade. Unlike voice games that demand loudness, this silent version is perfect for libraries or offices. Pixel aesthetics + endless mode = calm flow state.</p>
+    <p style="margin-top: 0.8rem;">⭐ "everyone’s calm until crystals accelerate" ⭐</p>
+  </div>
+
+  <footer>
+    Zen Glide v1.0 · calm cursor dodger · no voice, pure drift · <a href="#">Privacy</a> · <a href="#">About</a> · <a href="#">Contact</a><br>
+    ✨ Inspired by retro arcade & relaxation design ✨
+  </footer>
+</div>
+
+<script>
+  (function() {
+    // ----- CANVAS ELEMENTS -----
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Game dimensions
+    const W = 800, H = 400;
+    canvas.width = W;
+    canvas.height = H;
+
+    // ----- GAME STATE -----
+    let gameActive = true;
+    let score = 0;
+    let highScore = localStorage.getItem('zenGlideHigh') ? parseInt(localStorage.getItem('zenGlideHigh')) : 0;
+    document.getElementById('highScoreValue').innerText = highScore;
+
+    // Player (orb)
+    const PLAYER_RADIUS = 12;
+    let playerY = H/2;
+    let targetPlayerY = H/2;   // from cursor
+
+    // Obstacles array
+    let obstacles = [];
+    let frameCounter = 0;
+    let baseSpeed = 3.2;
+    let currentSpeed = baseSpeed;
+    let gapHeight = 70;      // gap between top/bottom crystal parts
+    let obstacleGapY = H/2;  // center of gap (randomized each spawn)
+    let spawnCooldown = 0;
+    let lastSpawnFrame = 0;
+    let frameDelay = 95;      // frames between spawns (initial)
+    
+    // collision & scoring
+    let passedObstacleIds = new Set();  // to count score only once per obstacle
+
+    // ----- CURSOR / TOUCH CONTROL (absolute vertical) -----
+    function updateCursorY(clientY, rect) {
+      if (!gameActive) return;
+      let relativeY = (clientY - rect.top) / rect.height;
+      relativeY = Math.min(1, Math.max(0, relativeY));
+      let newY = relativeY * H;
+      targetPlayerY = Math.min(H - PLAYER_RADIUS - 2, Math.max(PLAYER_RADIUS + 2, newY));
+    }
+
+    function handleMouseMove(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;   // actual canvas ratio
+      const scaleY = canvas.height / rect.height;
+      let clientY = e.clientY;
+      if (clientY !== undefined) {
+        let relativeY = (clientY - rect.top) / rect.height;
+        relativeY = Math.min(1, Math.max(0, relativeY));
+        let newY = relativeY * H;
+        targetPlayerY = Math.min(H - PLAYER_RADIUS - 2, Math.max(PLAYER_RADIUS + 2, newY));
+      }
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault();
+      if (!gameActive) return;
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      if (!touch) return;
+      let clientY = touch.clientY;
+      let relativeY = (clientY - rect.top) / rect.height;
+      relativeY = Math.min(1, Math.max(0, relativeY));
+      let newY = relativeY * H;
+      targetPlayerY = Math.min(H - PLAYER_RADIUS - 2, Math.max(PLAYER_RADIUS + 2, newY));
+    }
+
+    function attachEvents() {
+      canvas.addEventListener('mousemove', handleMouseMove);
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+      canvas.addEventListener('touchstart', (e) => { e.preventDefault(); });
+    }
+    attachEvents();
+
+    // restart function
+    function restartGame() {
+      gameActive = true;
+      score = 0;
+      document.getElementById('scoreValue').innerText = "0";
+      obstacles = [];
+      passedObstacleIds.clear();
+      frameCounter = 0;
+      currentSpeed = baseSpeed;
+      playerY = H/2;
+      targetPlayerY = H/2;
+      spawnCooldown = 5;    // small delay before first obstacle
+      lastSpawnFrame = 0;
+      frameDelay = 88;
+      updateHighScoreDisplay();
+    }
+
+    function updateHighScoreDisplay() {
+      if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('zenGlideHigh', highScore);
+        document.getElementById('highScoreValue').innerText = highScore;
+      } else {
+        document.getElementById('highScoreValue').innerText = highScore;
+      }
+    }
+
+    // spawn obstacle (pair of dark crystals: top and bottom block with gap)
+    function spawnObstacle() {
+      // random gap position (avoid edges too close)
+      let minGapCenter = PLAYER_RADIUS + gapHeight/2 + 8;
+      let maxGapCenter = H - PLAYER_RADIUS - gapHeight/2 - 8;
+      let gapCenterY = Math.min(maxGapCenter, Math.max(minGapCenter, Math.random() * (maxGapCenter - minGapCenter) + minGapCenter));
+      const obsWidth = 30;
+      obstacles.push({
+        x: W,
+        width: obsWidth,
+        gapY: gapCenterY,
+        gapHeight: gapHeight,
+        id: Date.now() + Math.random() * 10000 + obstacles.length,
+        counted: false
+      });
+    }
+
+    // collision detection (rect vs circle)
+    function checkCollision(obst) {
+      let playerLeft = PLAYER_RADIUS;
+      let playerRight = PLAYER_RADIUS * 2;
+      let playerTop = playerY - PLAYER_RADIUS;
+      let playerBottom = playerY + PLAYER_RADIUS;
+      
+      // obstacle left & right edges
+      let obsLeft = obst.x;
+      let obsRight = obst.x + obst.width;
+      
+      // if no horizontal overlap: no collision
+      if (playerRight < obsLeft || playerLeft > obsRight) return false;
+      
+      // gap region (y range where it's safe)
+      let gapTop = obst.gapY - obst.gapHeight/2;
+      let gapBottom = obst.gapY + obst.gapHeight/2;
+      
+      // if player overlaps with solid crystal area
+      if (playerBottom <= gapTop || playerTop >= gapBottom) {
+        return true;  // collision with crystal block
+      }
+      return false;
+    }
+
+    // update game logic each frame
+    function updateGame() {
+      if (!gameActive) return;
+      
+      // smooth player tracking (ease)
+      playerY += (targetPlayerY - playerY) * 0.32;
+      playerY = Math.min(H - PLAYER_RADIUS - 1, Math.max(PLAYER_RADIUS + 1, playerY));
+      
+      // edge collision (top/bottom -> game over)
+      if (playerY - PLAYER_RADIUS <= 0 || playerY + PLAYER_RADIUS >= H) {
+        gameActive = false;
+        return;
+      }
+      
+      // dynamic speed based on score (more difficult)
+      let speedBonus = Math.min(4.6, Math.floor(score / 45) * 0.45);
+      currentSpeed = baseSpeed + speedBonus;
+      currentSpeed = Math.min(8.2, currentSpeed);
+      
+      // spawn obstacles: delay based on score (faster spawn)
+      let dynamicSpawnDelay = Math.max(52, 88 - Math.floor(score / 28) * 1.8);
+      dynamicSpawnDelay = Math.min(90, dynamicSpawnDelay);
+      
+      if (frameCounter % Math.floor(dynamicSpawnDelay) === 0 && gameActive) {
+        if (obstacles.length < 6) {
+          spawnObstacle();
+        }
+      }
+      
+      // update obstacles positions & collision + scoring
+      for (let i = 0; i < obstacles.length; i++) {
+        const obs = obstacles[i];
+        obs.x -= currentSpeed;
+        
+        // collision check
+        if (checkCollision(obs)) {
+          gameActive = false;
+          return;
+        }
+        
+        // scoring: when obstacle left edge passes player's right edge (safe pass)
+        if (!obs.counted && (obs.x + obs.width) < PLAYER_RADIUS) {
+          obs.counted = true;
+          score++;
+          document.getElementById('scoreValue').innerText = score;
+          updateHighScoreDisplay();
+          // small visual feedback: increase spawn tension
+        }
+      }
+      
+      // remove offscreen obstacles
+      obstacles = obstacles.filter(obs => obs.x + obs.width > 0);
+      
+      frameCounter++;
+    }
+    
+    // ---------- DRAW EVERYTHING (pixel calm retro) ----------
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      // dark gradient background
+      const grad = ctx.createLinearGradient(0, 0, 0, H);
+      grad.addColorStop(0, '#021102');
+      grad.addColorStop(1, '#051a05');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+      
+      // draw subtle grid
+      ctx.strokeStyle = '#1f481f';
+      ctx.lineWidth = 0.6;
+      for (let i = 0; i < H; i += 30) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(W, i);
+        ctx.stroke();
+      }
+      
+      // draw dark crystals (obstacles)
+      for (let obs of obstacles) {
+        // top block
+        ctx.fillStyle = '#1b2a1c';
+        ctx.shadowBlur = 0;
+        ctx.fillRect(obs.x, 0, obs.width, obs.gapY - obs.gapHeight/2);
+        ctx.fillStyle = '#2e4127';
+        ctx.fillRect(obs.x, obs.gapY - obs.gapHeight/2, obs.width, 5);
+        // bottom block
+        ctx.fillStyle = '#1b2a1c';
+        ctx.fillRect(obs.x, obs.gapY + obs.gapHeight/2, obs.width, H - (obs.gapY + obs.gapHeight/2));
+        ctx.fillStyle = '#2e4127';
+        ctx.fillRect(obs.x, obs.gapY + obs.gapHeight/2 - 3, obs.width, 6);
+        // dark crystal texture
+        ctx.fillStyle = '#0f2d0c';
+        ctx.fillRect(obs.x+4, obs.gapY - obs.gapHeight/2 + 2, obs.width-8, 6);
+        ctx.fillStyle = '#0f2d0c';
+        ctx.fillRect(obs.x+4, obs.gapY + obs.gapHeight/2 - 6, obs.width-8, 6);
+      }
+      
+      // draw player (glowing orb)
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#aaffaa';
+      ctx.beginPath();
+      ctx.arc(PLAYER_RADIUS+3, playerY, PLAYER_RADIUS-1, 0, Math.PI*2);
+      ctx.fillStyle = '#eaffcf';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(PLAYER_RADIUS+3, playerY, PLAYER_RADIUS-3, 0, Math.PI*2);
+      ctx.fillStyle = '#b5ff96';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#f5ffcf';
+      ctx.beginPath();
+      ctx.arc(PLAYER_RADIUS+1, playerY-2, 3, 0, Math.PI*2);
+      ctx.fill();
+      
+      // draw tiny particle trail
+      ctx.fillStyle = '#b3ff8f';
+      for(let i=0;i<2;i++) {
+        ctx.fillRect(PLAYER_RADIUS-2, playerY-2+i*3, 3, 1);
+      }
+      
+      // draw Flow meter visual representation (vertical cursor ratio)
+      let ratio = targetPlayerY / H;
+      let fillPercent = ratio * 100;
+      document.getElementById('flowFill').style.width = fillPercent + '%';
+      
+      // game over text
+      if (!gameActive) {
+        ctx.font = 'bold 24px "Courier New", monospace';
+        ctx.fillStyle = '#ffe0aa';
+        ctx.shadowBlur = 0;
+        ctx.fillText('✧ GAME OVER ✧', W/2-110, H/2-25);
+        ctx.font = '14px monospace';
+        ctx.fillStyle = '#a0ffb0';
+        ctx.fillText('click RESTART or tap canvas', W/2-130, H/2+20);
+      }
+      
+      // show speed / score hint
+      ctx.font = 'bold 12px monospace';
+      ctx.fillStyle = '#95ff80';
+      ctx.fillText('⚡ drift speed: '+currentSpeed.toFixed(1), W-100, 20);
+    }
+    
+    // ---- GAME LOOP ----
+    function gameLoop() {
+      updateGame();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+    
+    // restart button & share logic
+    const restartBtn = document.getElementById('restartButton');
+    restartBtn.addEventListener('click', () => {
+      restartGame();
+    });
+    
+    // also click on canvas to restart if game inactive
+    canvas.addEventListener('click', (e) => {
+      if (!gameActive) {
+        restartGame();
+        // also update cursor position after restart
+        const rect = canvas.getBoundingClientRect();
+        let clientY = e.clientY;
+        if (clientY) {
+          let relativeY = (clientY - rect.top) / rect.height;
+          relativeY = Math.min(1, Math.max(0, relativeY));
+          targetPlayerY = relativeY * H;
+          targetPlayerY = Math.min(H - PLAYER_RADIUS - 2, Math.max(PLAYER_RADIUS + 2, targetPlayerY));
+          playerY = targetPlayerY;
+        }
+      }
+    });
+    
+    // share score
+    const shareBtn = document.getElementById('shareScoreBtn');
+    shareBtn.addEventListener('click', () => {
+      let scoreText = `🧘 Zen Glide · I reached ${score} meters dodging crystals! Can you beat my calm run? 🌀`;
+      navigator.clipboard.writeText(scoreText).then(() => {
+        alert('✨ Score copied! Share with friends ✨');
+      }).catch(() => alert('manual copy: ' + scoreText));
+    });
+    
+    // initialize highscore display & start
+    updateHighScoreDisplay();
+    restartGame();   // active start
+    gameLoop();
+  })();
+</script>
+</body>
+</html>
